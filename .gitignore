@@ -1,0 +1,9 @@
+# Virtual environment
+.venv/
+__pycache__/
+*.pyc
+# Cache and build files
+.pytest_cache/
+mockmentor.egg-info/
+# Local databases and user data uploads
+data/

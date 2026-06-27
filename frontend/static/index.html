@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MockMentor - Agentic AI Interview Coach</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Style -->
+    <link rel="stylesheet" href="/static/style.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Background elements -->
+    <div class="bg-blur bg-blur-1"></div>
+    <div class="bg-blur bg-blur-2"></div>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo">
+                <span class="logo-icon">✦</span>
+                <span class="logo-text">MockMentor</span>
+            </div>
+            <div class="header-status">
+                <span class="status-dot green"></span>
+                <span class="status-text">Ready</span>
+            </div>
+        </header>
+
+        <main class="app-content">
+            <!-- SETUP SCREEN -->
+            <section id="screen-setup" class="screen active">
+                <div class="hero-section">
+                    <h1 class="gradient-text">Elevate Your Interview Performance</h1>
+                    <p class="subtitle">MockMentor is an agentic AI Interview Coach that analyzes your resume and target JD, tests you on domain-specific weaknesses, and tracks your progress over time.</p>
+                </div>
+
+                <div class="glass-card setup-card">
+                    <form id="setup-form" class="form-grid">
+                        <div class="form-group">
+                            <label for="input-name">Your Name</label>
+                            <input type="text" id="input-name" required placeholder="e.g. Alex Chen">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="input-domain">Target Role / Domain</label>
+                            <input type="text" id="input-domain" required placeholder="e.g. Senior Software Engineer / Growth Marketer">
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="select-mode">Interview Mode</label>
+                            <select id="select-mode">
+                                <option value="FULL">Full Loop (STAR Behavioral + Technical/Domain)</option>
+                                <option value="BEHAVIORAL">Behavioral Only (STAR Methodology)</option>
+                                <option value="TECHNICAL">Technical/Domain Only (Core Hard Skills)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="textarea-jd">Job Description (JD)</label>
+                            <textarea id="textarea-jd" required placeholder="Paste the target job description here to align the interview scope..."></textarea>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label>Resume (PDF or TXT)</label>
+                            <div class="file-drop-area" id="file-drop-area">
+                                <div class="drop-info">
+                                    <span class="drop-icon">✦</span>
+                                    <span class="drop-text">Drag and drop your resume file here or click to browse</span>
+                                    <span class="drop-limit">Supports PDF, TXT (Max 5MB)</span>
+                                </div>
+                                <input type="file" id="input-resume" accept=".pdf,.txt">
+                            </div>
+                            <div id="file-name-display" class="file-name-display hidden">
+                                <span class="file-icon">📄</span>
+                                <span id="file-name-text">filename.pdf</span>
+                                <button type="button" id="btn-remove-file" class="btn-icon">×</button>
+                            </div>
+                        </div>
+
+                        <div class="form-group full-width btn-container">
+                            <button type="submit" id="btn-start" class="btn btn-primary">
+                                <span class="btn-text">Start Coach Session</span>
+                                <span class="btn-glow"></span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- CHAT SCREEN -->
+            <section id="screen-chat" class="screen">
+                <div class="chat-layout">
+                    <!-- Sidebar Status Panel -->
+                    <div class="glass-card chat-sidebar">
+                        <div class="sidebar-section">
+                            <h3>Session Details</h3>
+                            <div class="details-list">
+                                <div class="detail-item">
+                                    <span class="label">Candidate:</span>
+                                    <span id="display-name" class="val">---</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="label">Domain:</span>
+                                    <span id="display-domain" class="val">---</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="label">Mode:</span>
+                                    <span id="display-mode" class="val">---</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="sidebar-section">
+                            <h3>Agent Reasoning State</h3>
+                            <div class="status-list">
+                                <div class="status-item">
+                                    <span class="status-indicator active"></span>
+                                    <span class="status-name">ADK Mono-Agent Graph</span>
+                                </div>
+                                <div class="status-item">
+                                    <span class="status-indicator active"></span>
+                                    <span class="status-name">MCP SQLite Database</span>
+                                </div>
+                                <div class="status-item">
+                                    <span class="status-indicator" id="status-skill-matcher"></span>
+                                    <span class="status-name">Skill: resume_matcher</span>
+                                </div>
+                                <div class="status-item">
+                                    <span class="status-indicator" id="status-skill-eval"></span>
+                                    <span class="status-name">Skill: behavioral_evaluator</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="sidebar-section">
+                            <h3>Progress</h3>
+                            <div class="progress-container">
+                                <div class="progress-bar">
+                                    <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+                                </div>
+                                <div class="progress-text">Question <span id="current-q-num">1</span> of <span id="total-q-num">5</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chat Interface -->
+                    <div class="glass-card chat-terminal">
+                        <div id="chat-messages" class="chat-messages">
+                            <!-- Welcome Coach Message -->
+                            <div class="message coach">
+                                <div class="message-avatar">✦</div>
+                                <div class="message-content">
+                                    <p>Hello! I am your AI Interview Coach. I'm currently analyzing your Resume and the Job Description to prepare your mock interview loop. Get ready!</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Typing Indicator -->
+                        <div id="typing-indicator" class="message coach typing hidden">
+                            <div class="message-avatar animate-pulse">✦</div>
+                            <div class="message-content">
+                                <div class="typing-dots">
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chat Input -->
+                        <div class="chat-input-container">
+                            <textarea id="chat-input" placeholder="Type your response here... (Try to use the STAR method for behavioral queries)" rows="2"></textarea>
+                            <button id="btn-send" class="btn btn-send" disabled>
+                                <span class="send-icon">▲</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- DASHBOARD SCREEN -->
+            <section id="screen-dashboard" class="screen">
+                <div class="dashboard-header">
+                    <h1 class="gradient-text">Evaluation & Performance Profile</h1>
+                    <p class="subtitle">Here is the diagnostic evaluation of your mock interview. These insights are saved to SQLite to shape your next practice session.</p>
+                </div>
+
+                <div class="dashboard-grid">
+                    <!-- Overview Metrics -->
+                    <div class="glass-card metric-card">
+                        <div class="metric-value" id="metric-avg-score">0.0</div>
+                        <div class="metric-label">Average Response Score</div>
+                    </div>
+                    <div class="glass-card metric-card">
+                        <div class="metric-value" id="metric-domain">General</div>
+                        <div class="metric-label">Target Domain Profile</div>
+                    </div>
+                    <div class="glass-card metric-card">
+                        <div class="metric-value text-green" id="metric-status">Completed</div>
+                        <div class="metric-label">Session Status</div>
+                    </div>
+
+                    <!-- Competency Chart -->
+                    <div class="glass-card chart-card span-2">
+                        <h3>Competency Profile</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="chart-competencies"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Weak spots persistence status -->
+                    <div class="glass-card list-card">
+                        <h3>Persisted Weakspots Profile</h3>
+                        <p class="section-desc">These topics will be targeted with higher complexity in your next interview loop.</p>
+                        <div class="weakspots-list" id="weakspots-container">
+                            <!-- Weak spot tags go here -->
+                        </div>
+                    </div>
+
+                    <!-- Feedback details accordion -->
+                    <div class="glass-card accordion-card span-3">
+                        <h3>Detailed Feedback Log</h3>
+                        <div class="accordion-container" id="feedback-accordion">
+                            <!-- Iterative feedbacks -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-footer">
+                    <button id="btn-restart" class="btn btn-secondary">Start New Session</button>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
