@@ -7,3 +7,7 @@ __pycache__/
 mockmentor.egg-info/
 # Local databases and user data uploads
 data/
+
+# Private environment secrets
+.env
+

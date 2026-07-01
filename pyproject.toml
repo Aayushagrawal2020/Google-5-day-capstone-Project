@@ -2,14 +2,16 @@
 name = "mockmentor"
 version = "0.1.0"
 description = "MockMentor: Agentic AI Interview Coach"
-readme = "README.md"
+readme = "Readme.md"
 requires-python = ">=3.11"
 dependencies = [
     "fastapi>=0.109.0",
     "uvicorn>=0.27.0",
     "pypdf>=4.0.0",
     "python-multipart>=0.0.9",
-    "jinja2>=3.1.3"
+    "jinja2>=3.1.3",
+    "google-adk>=2.3.0",
+    "mcp>=1.28.1"
 ]
 
 [project.optional-dependencies]
@@ -17,3 +19,7 @@ dev = [
     "pytest>=8.0.0",
     "httpx>=0.26.0"
 ]
+
+[tool.setuptools]
+packages = ["agent", "db", "frontend"]
+

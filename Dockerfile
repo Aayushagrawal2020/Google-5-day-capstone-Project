@@ -2,16 +2,13 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Copy dependency definition
-COPY pyproject.toml .
+# Copy all source files
+COPY . .
 
 # Install dependencies and dev-dependencies for testing
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir . && \
     pip install --no-cache-dir ".[dev]"
-
-# Copy source code
-COPY . .
 
 # Expose port 8000
 EXPOSE 8000

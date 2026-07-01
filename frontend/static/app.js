@@ -5,7 +5,7 @@ document_ready(() => {
     let userDomain = "";
     let interviewMode = "";
     let currentQuestionNum = 1;
-    let totalQuestionsCount = 5;
+    let totalQuestionsCount = 10;
     let selectedFile = null;
     let competencyChart = null;
 

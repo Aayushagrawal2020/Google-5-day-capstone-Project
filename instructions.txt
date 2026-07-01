@@ -1,0 +1,82 @@
+MockMentor Team Testing Guide
+=============================
+
+This guide provides step-by-step instructions to run, test, and verify the backend, database, and agent components implemented for Developer 1 and Developer 2 tasks.
+
+Prerequisites
+-------------
+Configure your Gemini API Key using one of the following methods:
+
+Method A: Local Shell Export (Best for running pytest or python locally in terminal)
+  export GEMINI_API_KEY="your_api_key_here"
+
+Method B: Environment File (Best for Docker Compose runs)
+  Copy .env.example to .env and fill in your key:
+  cp .env.example .env
+
+Ensure Docker and Docker Compose are installed.
+
+
+
+Test Phase 1: Automated Unit Tests
+----------------------------------
+To run the automated tests locally:
+
+1. Activate the virtual environment:
+   source .venv/bin/activate
+
+2. Install the updated package dependencies:
+   pip install -e ".[dev]"
+
+3. Run the pytest suite (covers database CRUD operations, ADK graph loading, and FastAPI endpoints):
+   PYTHONPATH=. pytest
+
+
+Test Phase 2: Docker Verification
+---------------------------------
+Ensure the container compiles, runs, and executes tests successfully:
+
+1. Build the Docker image:
+   docker compose build
+
+2. Run the test suite inside the container environment:
+   docker compose run --entrypoint "/bin/sh -c 'PYTHONPATH=. pytest'" web
+
+
+Test Phase 3: Manual E2E Flow Verification
+-------------------------------------------
+1. Start the server (either locally or via Docker):
+   
+   Local:
+     uvicorn frontend.main:app --reload --port 8000
+   
+   Docker:
+     docker compose up --build
+
+2. Open your browser and navigate to:
+   http://localhost:8000
+
+3. Run Session 1 (Identify Weaknesses):
+   - Enter name: "Team Tester"
+   - Enter domain: "Software Engineer"
+   - Interview Mode: Choose "FULL" or "BEHAVIORAL"
+   - Paste a Job Description requiring React, Python, and SQL.
+   - Paste a Resume that only lists Python and HTML/CSS (missing React and SQL).
+   - Click "Start Coach Session".
+   - Proceed through the interview chat. Answer the questions. Give brief or incorrect answers for any queries related to React or SQL.
+   - Complete all 10 questions. The UI will automatically navigate to the Evaluation Dashboard.
+   - Check the radar chart and review the "Detailed Feedback Log" and "Persisted Weakspots Profile".
+
+4. Verify Database Persistence:
+   - Check that a database was created at `MockMentor/data/mockmentor.db` (locally) or inside the Docker mapped volume.
+   - You can inspect the recorded tables using SQLite:
+     sqlite3 data/mockmentor.db "SELECT * FROM weakspots;"
+     sqlite3 data/mockmentor.db "SELECT * FROM questions_history;"
+   - Verify that the React/SQL gaps you answered poorly on have been logged in the `weakspots` table with low ratings.
+
+5. Run Session 2 (Adaptive targeting):
+   - Click "Start New Session".
+   - Enter the EXACT SAME name ("Team Tester") and domain ("Software Engineer").
+   - Paste the same JD and Resume.
+   - Start the session.
+   - Notice that the agent queries the database for past weaknesses during initialization, detects the React/SQL gaps, and targets the new questions specifically to drill down on these topics to test your improvement.
